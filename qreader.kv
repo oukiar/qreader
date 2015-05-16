@@ -1,0 +1,39 @@
+
+<LabelData>:
+
+    content:content
+    title: "Label information"
+    
+    GridLayout:
+        id:content
+        cols: 2
+
+<QReader>:
+    orientation: 'vertical'
+    detector:detector
+    message:message
+
+    ZbarQrcodeDetector:
+        id: detector
+        on_datadecoded: root.decoded(args[1])
+    Label:
+        id: message
+        text: "Detecting ..."
+        size_hint_y: None
+        height: '100dp'
+
+    Button:
+        text: "Get label data"
+        size_hint_y: None
+        on_press: root.show_label()
+
+    BoxLayout:
+        size_hint_y: None
+        height: '48dp'
+
+        Button:
+            text: 'Scan a qrcode'
+            on_release: detector.start()
+        Button:
+            text: 'Stop detection'
+            on_release: detector.stop()

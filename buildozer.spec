@@ -1,9 +1,9 @@
 [app]
 
 # (str) Title of your application
-title = QR Reader
+title = QR Code Reader
 
-# (str) Package namei
+# (str) Package name
 package.name = qreader
 
 # (str) Package domain (needed for android/ios packaging)
@@ -13,26 +13,26 @@ package.domain = org.neurons
 source.dir = .
 
 # (list) Source files to include (let empty to include all the files)
-source.include_exts = py,png,jpg,kv,atlas,json
+source.include_exts = py,png,jpg,kv,atlas
 
 # (list) Source files to exclude (let empty to not exclude anything)
 #source.exclude_exts = spec
 
 # (list) List of directory to exclude (let empty to not exclude anything)
-#source.exclude_dirs = tests, bin
+#source.exclude_dirs = tests
 
 # (list) List of exclusions using pattern matching
 #source.exclude_patterns = license,images/*/*.jpg
 
-# (str) Application versioning (method 1)
-#version.regex = __version__ = '(.*)'
-#version.filename = %(source.dir)s/main.py
+# (str) Application versionning (method 1)
+version.regex = __version__ = '(.*)'
+version.filename = %(source.dir)s/main.py
 
-# (str) Application versioning (method 2)
-version = 1.0.0
+# (str) Application versionning (method 2)
+# version = 1.2.0
 
 # (list) Application requirements
-requirements = pil, kivy
+requirements = openssl, kivy
 
 # (str) Presplash of the application
 presplash.filename = %(source.dir)s/logo-Cargo-Express.png
@@ -52,7 +52,7 @@ fullscreen = 1
 #
 
 # (list) Permissions
-android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
+android.permissions = CAMERA, INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
 
 # (int) Android API to use
 #android.api = 14
@@ -64,10 +64,7 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
 #android.sdk = 21
 
 # (str) Android NDK version to use
-#android.ndk = 9c
-
-# (bool) Use --private data storage (True) or --dir public storage (False)
-#android.private_storage = True
+#android.ndk = 8c
 
 # (str) Android NDK directory (if empty, it will be automatically downloaded.)
 #android.ndk_path =
@@ -75,25 +72,20 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
 # (str) Android SDK directory (if empty, it will be automatically downloaded.)
 #android.sdk_path = 
 
-# (str) python-for-android git clone directory (if empty, it will be automatically cloned from github)
-#android.p4a_dir =
-
 # (str) Android entry point, default is ok for Kivy-based app
 #android.entrypoint = org.renpy.android.PythonActivity
 
-# (list) List of Java .jar files to add to the libs so that pyjnius can access
-# their classes. Don't add jars that you do not need, since extra jars can slow
-# down the build process. Allows wildcards matching, for example:
-# OUYA-ODK/libs/*.jar
-#android.add_jars = foo.jar,bar.jar,path/to/more/*.jar
-
-# (list) List of Java files to add to the android project (can be java or a
-# directory containing the files)
-#android.add_src =
+# (str) Semicolon separated list of Java .jar files to add to the libs so
+# that pyjnius can access their classes. Don't add jars that you do not need,
+# since extra jars can slow down the build process. Allows wildcards matching,
+# for example: OUYA-ODK/libs/*.jar
+#android.add_jars = foo.jar;bar.jar;path/to/more/*.jar
+android.add_jars = libs/android/zbar.jar
 
 # (str) python-for-android branch to use, if not master, useful to try
 # not yet merged features.
 #android.branch = master
+android.branch = 52e1861ca58657324a9f5452b1c91aaeca3963f3
 
 # (str) OUYA Console category. Should be one of GAME or APP
 # If you leave this blank, OUYA support will not be enabled
@@ -106,18 +98,8 @@ android.permissions = INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
 #android.manifest.intent_filters = 
 
 # (list) Android additionnal libraries to copy into libs/armeabi
-#android.add_libs_armeabi = libs/android/*.so
+android.add_libs_armeabi = libs/android/*.so
 
-# (bool) Indicate whether the screen should stay on
-# Don't forget to add the WAKE_LOCK permission if you set this to True
-android.wakelock = True
-
-# (list) Android application meta-data to set (key=value format)
-#android.meta_data =
-
-# (list) Android library project to add (will be added in the
-# project.properties automatically.)
-#android.library_references =
 
 #
 # iOS specific
@@ -134,7 +116,7 @@ android.wakelock = True
 [buildozer]
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
-log_level = 2
+log_level = 1
 
 
 # -----------------------------------------------------------------------------
