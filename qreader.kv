@@ -7,8 +7,8 @@
     GridLayout:
         id:content
         cols: 2
-
-<QReader>:
+    
+<Detector>:
     orientation: 'vertical'
     detector:detector
     message:message
@@ -37,3 +37,59 @@
         Button:
             text: 'Stop detection'
             on_release: detector.stop()
+
+<RepackForm>:
+    title: "Repack information"
+    BoxLayout:
+        Label:
+            text: "Agent"
+        TextInput:
+            
+    BoxLayout:
+        Label:
+            text: "Shipper"
+        TextInput:
+            
+    BoxLayout:
+        Label:
+            text: "Consignee"
+        TextInput:
+            
+    BoxLayout:
+        Label:
+            text: "Zone"
+        TextInput:
+            
+
+<Repack>:
+    detector:detector
+    message:message
+    
+    title: "Scan the labels !"
+    
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 20
+        ZbarQrcodeDetector:
+            id: detector
+            size_hint_y: None
+            on_datadecoded: root.decoded(args[1])
+        Label:
+            id: message
+            text: "Labels: "
+        
+        Button:
+            text: "Done"
+            on_press: app.root.repack_done()
+
+<QReader>:
+
+    BoxLayout:
+        orientation: "vertical"
+        Button:
+            text: "Repack"
+            on_press: root.on_repack()
+        Button:
+            text: "Receive"
+
+

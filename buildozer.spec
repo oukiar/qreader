@@ -1,7 +1,7 @@
 [app]
 
 # (str) Title of your application
-title = QR Code Reader
+title = QR Neurons Reader
 
 # (str) Package name
 package.name = qreader
@@ -32,10 +32,10 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = openssl, kivy
+requirements = openssl, plyer, kivy
 
 # (str) Presplash of the application
-presplash.filename = %(source.dir)s/logo-Cargo-Express.png
+presplash.filename = %(source.dir)s/bootsplash.png
 
 # (str) Icon of the application
 icon.filename = %(source.dir)s/bar-code.png

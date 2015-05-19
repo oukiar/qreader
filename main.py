@@ -27,8 +27,11 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.graphics import Color, Line
+
+from plyer.vibrator import vibrator 
 
 try:
     from jnius import autoclass, PythonJavaClass, java_method, cast
@@ -118,7 +121,8 @@ try:
             activity.addContentView(view, LayoutParams(*self.size))
             view.setZOrderOnTop(True)
             view.setX(self.x)
-            view.setY(self._window.height - self.y - self.height)
+            #view.setY(self._window.height - self.y - self.height)  #center screen
+            view.setY(100)
             self._old_view = view
 
         def on_size(self, instance, size):
@@ -168,6 +172,7 @@ try:
                 return
 
             self._android_camera = Camera.open(self.index)
+            
 
             # create a fake surfaceview to get the previewCallback working.
             self._android_surface = SurfaceView(PythonActivity.mActivity)
@@ -187,7 +192,9 @@ try:
             params = self._android_camera.getParameters()
             params.setPreviewSize(width, height)
             self._android_camera.setParameters(params)
-
+        
+            self._android_camera.setDisplayOrientation(90)
+        
             # now that we know the camera size, we'll create 2 buffers for faster
             # result (using Callback buffer approach, as described in Camera android
             # documentation)
@@ -286,6 +293,8 @@ class ZbarQrcodeDetector(AnchorLayout):
             self.symbols = []
             return
 
+        vibrator.vibrate(.2)
+
         # we detected qrcode! extract and dispatch them
         symbols = []
         it = barcode.getSymbols().iterator()
@@ -328,11 +337,38 @@ class LabelData(Popup):
     
 class Warehouses(Object):
     pass
-
-class QReader(BoxLayout):
+    
+class Detector(BoxLayout):
     
     detector = ObjectProperty()
     message = ObjectProperty()
+
+class RepackForm(Popup):
+    pass
+
+class Repack(Popup):
+    detector = ObjectProperty()
+    message = ObjectProperty()
+    
+    labels = []
+    
+    def on_open(self):
+        print "Opening"
+        self.detector.start()
+    
+    def on_dismiss(self):
+        print "Closing repack"
+        self.detector.stop()
+        
+    def decoded(self, val):
+        if self.message.text != "Labels: ":
+            self.message.text += ", "
+            
+        self.message.text += val
+
+        labels.append(val)
+
+class QReader(FloatLayout):
     
     def decoded(self, val):
         self.message.text = val
@@ -362,6 +398,18 @@ class QReader(BoxLayout):
         
         labeldata.open()
         
+    def on_repack(self):
+        print "Repack !"
+        
+        self.repack = Repack()
+        self.repack.open()
+        
+    def repack_done(self):
+        self.repack.dismiss()
+        
+        #open the repack dialog information
+        self.repackform = RepackForm()
+        self.repackform.open()
 
 if __name__ == '__main__':
 
