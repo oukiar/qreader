@@ -32,7 +32,7 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = openssl, plyer, kivy
+requirements = plyer,openssl,kivy
 
 # (str) Presplash of the application
 presplash.filename = %(source.dir)s/bootsplash.png
@@ -52,7 +52,7 @@ fullscreen = 1
 #
 
 # (list) Permissions
-android.permissions = CAMERA, INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK
+android.permissions = CAMERA, INTERNET, WRITE_EXTERNAL_STORAGE, WAKE_LOCK, VIBRATE
 
 # (int) Android API to use
 #android.api = 14

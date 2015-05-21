@@ -31,7 +31,7 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.graphics import Color, Line
 
-from plyer.vibrator import vibrator 
+from plyer import vibrator
 
 try:
     from jnius import autoclass, PythonJavaClass, java_method, cast

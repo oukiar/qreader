@@ -41,25 +41,33 @@
 <RepackForm>:
     title: "Repack information"
     BoxLayout:
-        Label:
-            text: "Agent"
-        TextInput:
-            
-    BoxLayout:
-        Label:
-            text: "Shipper"
-        TextInput:
-            
-    BoxLayout:
-        Label:
-            text: "Consignee"
-        TextInput:
-            
-    BoxLayout:
-        Label:
-            text: "Zone"
-        TextInput:
-            
+        orientation: "vertical"
+        padding: 10
+        spacing: 5
+        BoxLayout:
+            Label:
+                text: "Agent"
+            TextInput:
+                
+        BoxLayout:
+            Label:
+                text: "Shipper"
+            TextInput:
+                
+        BoxLayout:
+            Label:
+                text: "Consignee"
+            TextInput:
+                
+        BoxLayout:
+            Label:
+                text: "Zone"
+            TextInput:
+        
+        Button:
+            text: "Save repack"
+            size_hint_y: None
+            on_press: root.dismiss()
 
 <Repack>:
     detector:detector
