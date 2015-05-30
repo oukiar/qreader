@@ -1,4 +1,7 @@
 
+#:import ImageButton devslib.utils
+#:import ScrollBox devslib.scrollbox
+
 <LabelData>:
 
     content:content
@@ -21,6 +24,7 @@
         text: "Detecting ..."
         size_hint_y: None
         height: '100dp'
+        
 
     Button:
         text: "Get label data"
@@ -39,6 +43,15 @@
             on_release: detector.stop()
 
 <RepackForm>:
+
+    agent:agent
+    consignee:consignee
+    zone:zone
+    transport:transport
+    contentnotes:contentnotes
+    generalnotes:generalnotes
+    internalnotes:internalnotes
+    
     title: "Repack information"
     BoxLayout:
         orientation: "vertical"
@@ -48,30 +61,124 @@
             Label:
                 text: "Agent"
             TextInput:
-                
-        BoxLayout:
-            Label:
-                text: "Shipper"
-            TextInput:
+                id: agent
                 
         BoxLayout:
             Label:
                 text: "Consignee"
             TextInput:
-                
+                id: consignee
+                on_text: app.root.do_clientcomplete(self)
         BoxLayout:
             Label:
                 text: "Zone"
             TextInput:
+                id:zone
+            
+        BoxLayout:
+            Label:
+                text: "Transport"
+            Spinner:
+                values: ('DHL', "Fedex", "UPS")
+                id:transport
+                
+        BoxLayout:
+            Label:
+                text: "Content"
+            TextInput:
+                id:contentnotes
+            
+        BoxLayout:
+            Label:
+                text: "General notes"
+            TextInput:
+                id: generalnotes
+            
+        BoxLayout:
+            Label:
+                text: "Internal notes"
+            TextInput:
+                id:internalnotes
         
         Button:
             text: "Save repack"
             size_hint_y: None
-            on_press: root.dismiss()
+            on_press: app.root.repack_save()
+
+<Login@AnchorLayout>:
+    username: username
+    password: password
+
+    anchor_x: "center"
+    anchor_y: "center"
+    BoxLayout:
+        orientation: "vertical"
+        size_hint: (None,None)
+        size: (400,400)
+        spacing: 20
+        
+        ImageButton:
+            source: "bar-code.png"
+            
+        Label:
+            text: "Username"
+        TextInput:
+            id: username
+            text: "natsynapses@neurons"
+        Label:
+            text: "Password"
+        TextInput:
+            id: password
+            text: "orwell1984"
+            password: True
+            
+        Button:
+            text: "Sign in"
+            on_press: app.root.signin()
+
+<LabelReceipt>:
+    receipt: receipt
+    consignee: consignee
+    zone: zone
+    volume: volume
+    country: country
+    objectId: objectId
+    BoxLayout:
+        orientation: "vertical"
+        spacing:10
+        
+        Label:
+            id: consignee
+            font_size: 20
+            text: "[b]Consignee:[/b]\n Sandra Rivas"
+            markup: True
+        Label:
+            id: receipt
+            text: "Receipt#: 165"
+        
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            id: zone
+            text: "Zone: 42"
+        Label:
+            id: volume
+            text: "Volume 56"
+                        
+                        
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            id: country
+            text: "Country: Panama"
+        Label:
+            id: objectId
+            text: "ID: 00000"
 
 <Repack>:
     detector:detector
     message:message
+    boxlabels:boxlabels
     
     title: "Scan the labels !"
     
@@ -85,19 +192,30 @@
         Label:
             id: message
             text: "Labels: "
+            
+        ScrollBox:
+            orientation: "vertical"
+            id: boxlabels
         
         Button:
             text: "Done"
             on_press: app.root.repack_done()
 
-<QReader>:
-
+<Main>:
     BoxLayout:
         orientation: "vertical"
         Button:
             text: "Repack"
-            on_press: root.on_repack()
+            on_press: app.root.on_repack()
         Button:
             text: "Receive"
+        ImageButton:
+            source: "box.png"
+            
+<QReader>:
+    login:login
+    Login:
+        id: login
+
 
 

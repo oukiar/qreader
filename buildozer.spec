@@ -32,7 +32,7 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = plyer,openssl,kivy
+requirements = pil,plyer,openssl,kivy
 
 # (str) Presplash of the application
 presplash.filename = %(source.dir)s/bootsplash.png
@@ -100,6 +100,7 @@ android.branch = 52e1861ca58657324a9f5452b1c91aaeca3963f3
 # (list) Android additionnal libraries to copy into libs/armeabi
 android.add_libs_armeabi = libs/android/*.so
 
+android.wakelock = True
 
 #
 # iOS specific
@@ -116,7 +117,7 @@ android.add_libs_armeabi = libs/android/*.so
 [buildozer]
 
 # (int) Log level (0 = error only, 1 = info, 2 = debug (with command output))
-log_level = 1
+log_level = 2
 
 
 # -----------------------------------------------------------------------------

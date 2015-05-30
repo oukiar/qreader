@@ -31,7 +31,17 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.graphics import Color, Line
 
+from devslib.utils import ImageButton
+from devslib.utils import MessageBoxTime
+
+from kivy.uix.image import Image
+from kivy.uix.bubble import Bubble
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
+
 from plyer import vibrator
+
+import os
 
 try:
     from jnius import autoclass, PythonJavaClass, java_method, cast
@@ -46,7 +56,7 @@ try:
     Config = autoclass('net.sourceforge.zbar.Config')
     SurfaceView = autoclass('android.view.SurfaceView')
     LayoutParams = autoclass('android.view.ViewGroup$LayoutParams')
-    Image = autoclass('net.sourceforge.zbar.Image')
+    ImageZBar = autoclass('net.sourceforge.zbar.Image')
     ImageFormat = autoclass('android.graphics.ImageFormat')
     LinearLayout = autoclass('android.widget.LinearLayout')
     Symbol = autoclass('net.sourceforge.zbar.Symbol')
@@ -237,6 +247,7 @@ except:
 #parse stuff
 from parse_rest.connection import register
 from parse_rest.datatypes import Object
+from parse_rest.user import User
 
 
 
@@ -283,7 +294,7 @@ class ZbarQrcodeDetector(AnchorLayout):
         # then start the detection on the image
         parameters = camera.getParameters()
         size = parameters.getPreviewSize()
-        barcode = Image(size.width, size.height, 'NV21')
+        barcode = ImageZBar(size.width, size.height, 'NV21')
         barcode.setData(data)
         barcode = barcode.convert('Y800')
 
@@ -293,7 +304,7 @@ class ZbarQrcodeDetector(AnchorLayout):
             self.symbols = []
             return
 
-        vibrator.vibrate(.2)
+        
 
         # we detected qrcode! extract and dispatch them
         symbols = []
@@ -308,6 +319,7 @@ class ZbarQrcodeDetector(AnchorLayout):
                 bounds=symbol.getBounds())
             symbols.append(qrcode)
             
+            print symbol.getData()
             self.datadecoded = symbol.getData()
 
         self.symbols = symbols
@@ -338,17 +350,35 @@ class LabelData(Popup):
 class Warehouses(Object):
     pass
     
+class Clients(Object):
+    pass
+    
 class Detector(BoxLayout):
     
     detector = ObjectProperty()
     message = ObjectProperty()
 
 class RepackForm(Popup):
-    pass
+    agent = ObjectProperty()
+    consignee = ObjectProperty()
+    zone = ObjectProperty()
+    transport = ObjectProperty()
+    contentnotes = ObjectProperty()
+    generalnotes = ObjectProperty()
+    internalnotes = ObjectProperty()
+    
+class LabelReceipt(BoxLayout):
+    receipt = ObjectProperty()
+    consignee = ObjectProperty()
+    zone = ObjectProperty()
+    volume = ObjectProperty()
+    country = ObjectProperty()
+    objectId = ObjectProperty()
 
 class Repack(Popup):
     detector = ObjectProperty()
     message = ObjectProperty()
+    boxlabels = ObjectProperty()
     
     labels = []
     
@@ -361,14 +391,63 @@ class Repack(Popup):
         self.detector.stop()
         
     def decoded(self, val):
+        '''
         if self.message.text != "Labels: ":
             self.message.text += ", "
             
         self.message.text += val
+        '''
+        
+        if val not in self.labels:
+            self.labels.append(val)
+            
+            #obtener informacion del warehouse leido
+            wh = Warehouses.Query.get(objectId=val)
+            
+            
+            box = Bubble(size_hint_y=None, height=200)
+                    
+            labelreceipt = LabelReceipt()
+            
+            labelreceipt.receipt.text = "Receipt#: " + str(wh.Receipt)
+            labelreceipt.zone.text = "Zone: " + wh.Zone
+            labelreceipt.volume.text = "Volume: " + wh.Volume
+            labelreceipt.consignee.text = "[b]Consignee:[/b]\n" + wh.Consignee.Name
+            labelreceipt.country.text = "Country: " + wh.Country
+            labelreceipt.objectId.text = "ID: " + wh.objectId
+            
+            '''
+            labelreceipt.zone.text = wh.Zone
+            '''
+                    
+            #box.add_widget(Label(text="ID:"+val))
+            box.add_widget(labelreceipt)
+            
+            if os.path.isfile("box.png"):
+                print "BOX IMAGE FOUND"
+                                
+            self.boxlabels.add_widget( box )
+            vibrator.vibrate(.2)
 
-        labels.append(val)
+class Main(FloatLayout):
+    pass
 
 class QReader(FloatLayout):
+    
+    login = ObjectProperty()
+    
+    def signin(self):
+        
+        try:
+            self.user = User.login(self.login.username.text, self.login.password.text)
+        
+            self.remove_widget(self.login)
+            
+            self.main = Main()
+            self.add_widget(self.main)
+        except:
+            MessageBoxTime(msg="Bad login").open()
+        
     
     def decoded(self, val):
         self.message.text = val
@@ -410,6 +489,45 @@ class QReader(FloatLayout):
         #open the repack dialog information
         self.repackform = RepackForm()
         self.repackform.open()
+        
+    def repack_save(self):
+        self.repackform.dismiss()
+        
+        wh = Warehouses()
+        wh.Agent = self.repackform.agent.text
+        #wh.Consignee.Name = self.repackform.consignee.text
+        wh.Zone = self.repackform.zone.text
+        wh.Transport = self.repackform.transport.text
+        wh.Content = self.repackform.contentnotes.text
+        wh.GeneralNotes = self.repackform.generalnotes.text
+        wh.InternalNotes = self.repackform.internalnotes.text
+
+        wh.save()
+        
+    def do_clientcomplete(self, w):
+        print w.text
+        
+        clients = Clients.Query.all()
+
+        #for the autocomplete
+        if not hasattr(self, "down"):
+            self.down = DropDown()
+
+        self.down.clear_widgets()
+
+        for client in clients:
+            if w.text.lower() in client.Name.lower():
+                print client.Name
+                
+                but = Button(text=client.Name, size_hint_y=None, height=44, on_press=self.select_clientresult)
+                
+                self.down.add_widget(but)
+                
+        self.down.open(self.repackform.consignee)
+
+    def select_clientresult(self, w):
+        print w.text
+        
 
 if __name__ == '__main__':
 
@@ -420,5 +538,16 @@ if __name__ == '__main__':
             register("XEPryFHrd5Tztu45du5Z3kpqxDsweaP1Q0lt8JOb", "PE8FNw0hDdlvcHYYgxEnbUyxPkP9TAsPqKvdB4L0")
             
             return QReader()
-
+            
+    def on_stop(self):
+        #self.remote.net.shutdown_network()
+        self.ojbx.net.shutdown_network()
+    
+        
+    def on_pause(self):
+        return True
+        
+    def on_resume(self):
+        pass
+        
     QReaderApp().run()
