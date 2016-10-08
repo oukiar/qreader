@@ -213,9 +213,20 @@
             source: "box.png"
             
 <QReader>:
-    login:login
-    Login:
-        id: login
+
+    detector:detector
+    message:message
+    
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 20
+        ZbarQrcodeDetector:
+            id: detector
+            size_hint_y: None
+            on_datadecoded: root.decoded(args[1])
+        Label:
+            id: message
+            text: "Labels: "
 
 
 
