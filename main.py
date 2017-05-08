@@ -31,8 +31,6 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.popup import Popup
 from kivy.graphics import Color, Line
 
-from devslib.utils import ImageButton
-from devslib.utils import MessageBoxTime
 
 from kivy.uix.image import Image
 from kivy.uix.bubble import Bubble
@@ -42,6 +40,20 @@ from kivy.uix.dropdown import DropDown
 from plyer import vibrator
 
 import os
+
+
+try:
+    import os
+    import devslib.cloud as cloud
+except:
+    os.system("git clone https://github.com/oukiar/devslib")
+    import devslib.cloud as cloud
+
+
+
+from devslib.utils import ImageButton
+from devslib.utils import MessageBoxTime
+
 
 try:
     from jnius import autoclass, PythonJavaClass, java_method, cast
@@ -244,11 +256,12 @@ try:
 except:
     android = None
 
+'''
 #parse stuff
 from parse_rest.connection import register
 from parse_rest.datatypes import Object
 from parse_rest.user import User
-
+'''
 
 
 class ZbarQrcodeDetector(AnchorLayout):
@@ -345,13 +358,6 @@ class ZbarQrcodeDetector(AnchorLayout):
 
 class LabelData(Popup):
     content = ObjectProperty()
-    
-    
-class Warehouses(Object):
-    pass
-    
-class Clients(Object):
-    pass
     
 class Detector(BoxLayout):
     
@@ -535,7 +541,7 @@ if __name__ == '__main__':
         def build(self):
             
             #parse initialization
-            register("XEPryFHrd5Tztu45du5Z3kpqxDsweaP1Q0lt8JOb", "PE8FNw0hDdlvcHYYgxEnbUyxPkP9TAsPqKvdB4L0")
+            #register("XEPryFHrd5Tztu45du5Z3kpqxDsweaP1Q0lt8JOb", "PE8FNw0hDdlvcHYYgxEnbUyxPkP9TAsPqKvdB4L0")
             
             return QReader()
             
