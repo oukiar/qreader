@@ -2,7 +2,8 @@
 Qrcode example application
 ==========================
 
-Author: Mathieu Virbel <mat@meltingrocks.com>
+Original Author: Mathieu Virbel <mat@meltingrocks.com>
+Adapted by: Oscar Alcantara <oukiar@gmail.com>
 
 Featuring:
 
@@ -21,10 +22,28 @@ from collections import namedtuple
 from kivy.lang import Builder
 from kivy.app import App
 from kivy.properties import ObjectProperty, ListProperty, BooleanProperty, \
-    NumericProperty
+    NumericProperty, StringProperty
 from kivy.uix.widget import Widget
+from kivy.uix.label import Label
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.floatlayout import FloatLayout
+from kivy.uix.popup import Popup
 from kivy.graphics import Color, Line
+
+from devslib.utils import ImageButton
+from devslib.utils import MessageBoxTime
+
+from kivy.uix.image import Image
+from kivy.uix.bubble import Bubble
+from kivy.uix.button import Button
+from kivy.uix.dropdown import DropDown
+
+from plyer import vibrator
+
+import os
+
+
 from jnius import autoclass, PythonJavaClass, java_method, cast
 from android.runnable import run_on_ui_thread
 
@@ -37,7 +56,7 @@ ImageScanner = autoclass('net.sourceforge.zbar.ImageScanner')
 Config = autoclass('net.sourceforge.zbar.Config')
 SurfaceView = autoclass('android.view.SurfaceView')
 LayoutParams = autoclass('android.view.ViewGroup$LayoutParams')
-Image = autoclass('net.sourceforge.zbar.Image')
+ImageZBar = autoclass('net.sourceforge.zbar.Image')
 ImageFormat = autoclass('android.graphics.ImageFormat')
 LinearLayout = autoclass('android.widget.LinearLayout')
 Symbol = autoclass('net.sourceforge.zbar.Symbol')
@@ -80,240 +99,7 @@ class SurfaceHolderCallback(PythonJavaClass):
     def surfaceDestroyed(self, surface):
         pass
 
-
-<<<<<<< HEAD
-
-from kivy.uix.image import Image
-from kivy.uix.bubble import Bubble
-from kivy.uix.button import Button
-from kivy.uix.dropdown import DropDown
-
-from plyer import vibrator
-
-import os
-
-
-try:
-    import os
-    import devslib.cloud as cloud
-except:
-    os.system("git clone https://github.com/oukiar/devslib")
-    import devslib.cloud as cloud
-
-
-
-from devslib.utils import ImageButton
-from devslib.utils import MessageBoxTime
-
-
-try:
-    from jnius import autoclass, PythonJavaClass, java_method, cast
-    from android.runnable import run_on_ui_thread
-
-    # preload java classes
-    System = autoclass('java.lang.System')
-    System.loadLibrary('iconv')
-    PythonActivity = autoclass('org.renpy.android.PythonActivity')
-    Camera = autoclass('android.hardware.Camera')
-    ImageScanner = autoclass('net.sourceforge.zbar.ImageScanner')
-    Config = autoclass('net.sourceforge.zbar.Config')
-    SurfaceView = autoclass('android.view.SurfaceView')
-    LayoutParams = autoclass('android.view.ViewGroup$LayoutParams')
-    ImageZBar = autoclass('net.sourceforge.zbar.Image')
-    ImageFormat = autoclass('android.graphics.ImageFormat')
-    LinearLayout = autoclass('android.widget.LinearLayout')
-    Symbol = autoclass('net.sourceforge.zbar.Symbol')
-    
-
-    class PreviewCallback(PythonJavaClass):
-        '''Interface used to get back the preview frame of the Android Camera
-        '''
-        __javainterfaces__ = ('android.hardware.Camera$PreviewCallback', )
-
-        def __init__(self, callback):
-            super(PreviewCallback, self).__init__()
-            self.callback = callback
-
-        @java_method('([BLandroid/hardware/Camera;)V')
-        def onPreviewFrame(self, data, camera):
-            self.callback(camera, data)
-
-
-    class SurfaceHolderCallback(PythonJavaClass):
-        '''Interface used to know exactly when the Surface used for the Android
-        Camera will be created and changed.
-        '''
-
-        __javainterfaces__ = ('android.view.SurfaceHolder$Callback', )
-
-        def __init__(self, callback):
-            super(SurfaceHolderCallback, self).__init__()
-            self.callback = callback
-     
-        @java_method('(Landroid/view/SurfaceHolder;III)V')
-        def surfaceChanged(self, surface, fmt, width, height):
-            self.callback(fmt, width, height)
-
-        @java_method('(Landroid/view/SurfaceHolder;)V')
-        def surfaceCreated(self, surface):
-            pass
-     
-        @java_method('(Landroid/view/SurfaceHolder;)V')
-        def surfaceDestroyed(self, surface):
-            pass
-
-      
-    class AndroidWidgetHolder(Widget):
-        '''Act as a placeholder for an Android widget.
-        It will automatically add / remove the android view depending if the widget
-        view is set or not. The android view will act as an overlay, so any graphics
-        instruction in this area will be covered by the overlay.
-        '''
-
-        view = ObjectProperty(allownone=True)
-        '''Must be an Android View
-        '''
-
-        def __init__(self, **kwargs):
-            self._old_view = None
-            from kivy.core.window import Window
-            self._window = Window
-            kwargs['size_hint'] = (None, None)
-            super(AndroidWidgetHolder, self).__init__(**kwargs)
-
-        def on_view(self, instance, view):
-            if self._old_view is not None:
-                layout = cast(LinearLayout, self._old_view.getParent())
-                layout.removeView(self._old_view)
-                self._old_view = None
-
-            if view is None:
-                return
-
-            activity = PythonActivity.mActivity
-            activity.addContentView(view, LayoutParams(*self.size))
-            view.setZOrderOnTop(True)
-            view.setX(self.x)
-            #view.setY(self._window.height - self.y - self.height)  #center screen
-            view.setY(100)
-            self._old_view = view
-
-        def on_size(self, instance, size):
-            if self.view:
-                params = self.view.getLayoutParams()
-                params.width = self.width
-                params.height = self.height
-                self.view.setLayoutParams(params)
-                self.view.setY(self._window.height - self.y - self.height)
-
-        def on_x(self, instance, x):
-            if self.view:
-                self.view.setX(x)
-
-        def on_y(self, instance, y):
-            if self.view:
-                self.view.setY(self._window.height - self.y - self.height)
-
-
-    class AndroidCamera(Widget):
-        '''Widget for controling an Android Camera.
-        '''
-
-        index = NumericProperty(0)
-
-        __events__ = ('on_preview_frame', )
-
-        def __init__(self, **kwargs):
-            self._holder = None
-            self._android_camera = None
-            super(AndroidCamera, self).__init__(**kwargs)
-            self._holder = AndroidWidgetHolder(size=self.size, pos=self.pos)
-            self.add_widget(self._holder)
-
-        @run_on_ui_thread
-        def stop(self):
-            if self._android_camera is None:
-                return
-            self._android_camera.setPreviewCallback(None)
-            self._android_camera.release()
-            self._android_camera = None
-            self._holder.view = None
-
-        @run_on_ui_thread
-        def start(self):
-            if self._android_camera is not None:
-                return
-
-            self._android_camera = Camera.open(self.index)
-            
-
-            # create a fake surfaceview to get the previewCallback working.
-            self._android_surface = SurfaceView(PythonActivity.mActivity)
-            surface_holder = self._android_surface.getHolder()
-
-            # create our own surface holder to correctly call the next method when
-            # the surface is ready
-            self._android_surface_cb = SurfaceHolderCallback(self._on_surface_changed)
-            surface_holder.addCallback(self._android_surface_cb)
-
-            # attach the android surfaceview to our android widget holder
-            self._holder.view = self._android_surface
-
-        def _on_surface_changed(self, fmt, width, height):
-            # internal, called when the android SurfaceView is ready
-            # FIXME if the size is not handled by the camera, it will failed.
-            params = self._android_camera.getParameters()
-            params.setPreviewSize(width, height)
-            self._android_camera.setParameters(params)
-        
-            self._android_camera.setDisplayOrientation(90)
-        
-            # now that we know the camera size, we'll create 2 buffers for faster
-            # result (using Callback buffer approach, as described in Camera android
-            # documentation)
-            # it also reduce the GC collection
-            bpp = ImageFormat.getBitsPerPixel(params.getPreviewFormat()) / 8.
-            buf = '\x00' * int(width * height * bpp)
-            self._android_camera.addCallbackBuffer(buf)
-            self._android_camera.addCallbackBuffer(buf)
-
-            # create a PreviewCallback to get back the onPreviewFrame into python
-            self._previewCallback = PreviewCallback(self._on_preview_frame)
-
-            # connect everything and start the preview
-            self._android_camera.setPreviewCallbackWithBuffer(self._previewCallback);
-            self._android_camera.setPreviewDisplay(self._android_surface.getHolder())
-            self._android_camera.startPreview();
-
-        def _on_preview_frame(self, camera, data):
-            # internal, called by the PreviewCallback when onPreviewFrame is
-            # received
-            self.dispatch('on_preview_frame', camera, data)
-            # reintroduce the data buffer into the queue
-            self._android_camera.addCallbackBuffer(data)
-
-        def on_preview_frame(self, camera, data):
-            pass
-
-        def on_size(self, instance, size):
-            if self._holder:
-                self._holder.size = size
-
-        def on_pos(self, instance, pos):
-            if self._holder:
-                self._holder.pos = pos
   
-    
-except:
-    android = None
-
-'''
-#parse stuff
-from parse_rest.connection import register
-from parse_rest.datatypes import Object
-from parse_rest.user import User
-'''
-=======
 class AndroidWidgetHolder(Widget):
     '''Act as a placeholder for an Android widget.
     It will automatically add / remove the android view depending if the widget
@@ -345,7 +131,8 @@ class AndroidWidgetHolder(Widget):
         activity.addContentView(view, LayoutParams(*self.size))
         view.setZOrderOnTop(True)
         view.setX(self.x)
-        view.setY(self._window.height - self.y - self.height)
+        #view.setY(self._window.height - self.y - self.height)  #center screen
+        view.setY(100)
         self._old_view = view
 
     def on_size(self, instance, size):
@@ -395,6 +182,7 @@ class AndroidCamera(Widget):
             return
 
         self._android_camera = Camera.open(self.index)
+        
 
         # create a fake surfaceview to get the previewCallback working.
         self._android_surface = SurfaceView(PythonActivity.mActivity)
@@ -414,7 +202,9 @@ class AndroidCamera(Widget):
         params = self._android_camera.getParameters()
         params.setPreviewSize(width, height)
         self._android_camera.setParameters(params)
-
+    
+        self._android_camera.setDisplayOrientation(90)
+    
         # now that we know the camera size, we'll create 2 buffers for faster
         # result (using Callback buffer approach, as described in Camera android
         # documentation)
@@ -449,7 +239,8 @@ class AndroidCamera(Widget):
     def on_pos(self, instance, pos):
         if self._holder:
             self._holder.pos = pos
->>>>>>> 101b57509b9bf856166f3ff95a3b22948ae98c2e
+
+
 
 
 class ZbarQrcodeDetector(AnchorLayout):
@@ -462,6 +253,8 @@ class ZbarQrcodeDetector(AnchorLayout):
 
     # XXX can't work now, due to overlay.
     show_bounds = BooleanProperty(False)
+    
+    datadecoded = StringProperty()
 
     Qrcode = namedtuple('Qrcode',
             ['type', 'data', 'bounds', 'quality', 'count'])
@@ -493,7 +286,7 @@ class ZbarQrcodeDetector(AnchorLayout):
         # then start the detection on the image
         parameters = camera.getParameters()
         size = parameters.getPreviewSize()
-        barcode = Image(size.width, size.height, 'NV21')
+        barcode = ImageZBar(size.width, size.height, 'NV21')
         barcode.setData(data)
         barcode = barcode.convert('Y800')
 
@@ -502,6 +295,8 @@ class ZbarQrcodeDetector(AnchorLayout):
         if result == 0:
             self.symbols = []
             return
+
+        
 
         # we detected qrcode! extract and dispatch them
         symbols = []
@@ -515,6 +310,9 @@ class ZbarQrcodeDetector(AnchorLayout):
                 count=symbol.getCount(),
                 bounds=symbol.getBounds())
             symbols.append(qrcode)
+            
+            print symbol.getData()
+            self.datadecoded = symbol.getData()
 
         self.symbols = symbols
 
@@ -537,9 +335,15 @@ class ZbarQrcodeDetector(AnchorLayout):
                 Line(rectangle=[x, y, w, h], group='bounds')
     '''
 
-<<<<<<< HEAD
 class LabelData(Popup):
     content = ObjectProperty()
+    
+    
+class Warehouses(Object):
+    pass
+    
+class Clients(Object):
+    pass
     
 class Detector(BoxLayout):
     
@@ -716,58 +520,22 @@ class QReader(FloatLayout):
     def select_clientresult(self, w):
         print w.text
         
-=======
->>>>>>> 101b57509b9bf856166f3ff95a3b22948ae98c2e
 
 if __name__ == '__main__':
 
-    qrcode_kv = '''
-BoxLayout:
-    orientation: 'vertical'
-
-    ZbarQrcodeDetector:
-        id: detector
-
-    Label:
-        text: '\\n'.join(map(repr, detector.symbols))
-        size_hint_y: None
-        height: '100dp'
-
-    BoxLayout:
-        size_hint_y: None
-        height: '48dp'
-
-        Button:
-            text: 'Scan a qrcode'
-            on_release: detector.start()
-        Button:
-            text: 'Stop detection'
-            on_release: detector.stop()
-'''
-
-    class QrcodeExample(App):
+    class QReaderApp(App):
         def build(self):
-<<<<<<< HEAD
-            
-            #parse initialization
-            #register("XEPryFHrd5Tztu45du5Z3kpqxDsweaP1Q0lt8JOb", "PE8FNw0hDdlvcHYYgxEnbUyxPkP9TAsPqKvdB4L0")
-            
+                        
             return QReader()
             
-    def on_stop(self):
-        #self.remote.net.shutdown_network()
-        self.ojbx.net.shutdown_network()
-    
+        def on_stop(self):
+            pass
         
-    def on_pause(self):
-        return True
-        
-    def on_resume(self):
-        pass
+            
+        def on_pause(self):
+            return True
+            
+        def on_resume(self):
+            pass
         
     QReaderApp().run()
-=======
-            return Builder.load_string(qrcode_kv)
-
-    QrcodeExample().run()
->>>>>>> 101b57509b9bf856166f3ff95a3b22948ae98c2e

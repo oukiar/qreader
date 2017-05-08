@@ -213,7 +213,24 @@
             source: "box.png"
             
 <QReader>:
+<<<<<<< HEAD
     Detector:
+=======
+
+    detector:detector
+    message:message
+    
+    BoxLayout:
+        orientation: "vertical"
+        spacing: 20
+        ZbarQrcodeDetector:
+            id: detector
+            size_hint_y: None
+            on_datadecoded: root.decoded(args[1])
+        Label:
+            id: message
+            text: "Labels: "
+>>>>>>> 101b57509b9bf856166f3ff95a3b22948ae98c2e
 
 
 
