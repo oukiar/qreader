@@ -32,7 +32,7 @@ version.filename = %(source.dir)s/main.py
 # version = 1.2.0
 
 # (list) Application requirements
-requirements = hostpython2,pil,plyer,sqlite3,kivy
+requirements = hostpython2,pil,plyer,kivy
 
 # (str) Presplash of the application
 presplash.filename = %(source.dir)s/bootsplash.png
